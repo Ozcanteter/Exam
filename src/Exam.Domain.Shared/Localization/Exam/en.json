@@ -63,6 +63,19 @@
     "MaxEndDate": "Max End Date",
     "MaxGoal": "Max Goal",
     "Menu:Challenges": "Challenges",
-    "Menu:Exam": "Exam"
+    "Menu:Exam": "Exam",
+    "Challenge": "Challenge",
+    "IdentityUser": "Identity user",
+    "Permission:Participants": "Participants",
+    "Participants": "Participants",
+    "NewParticipant": "New Participant",
+    "Menu:Participants": "Participants",
+    "Permission:ProgressEntries": "Progress Entries",
+    "ProgressEntries": "Progress Entries",
+    "NewProgressEntry": "New Progress Entry",
+    "Value": "Value",
+    "MinValue": "Min Value",
+    "MaxValue": "Max Value",
+    "Menu:ProgressEntries": "Progress Entries"
   }
 }

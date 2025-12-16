@@ -21,6 +21,16 @@ public class ExamPermissionDefinitionProvider : PermissionDefinitionProvider
         challengePermission.AddChild(ExamPermissions.Challenges.Create, L("Permission:Create"));
         challengePermission.AddChild(ExamPermissions.Challenges.Edit, L("Permission:Edit"));
         challengePermission.AddChild(ExamPermissions.Challenges.Delete, L("Permission:Delete"));
+
+        var participantPermission = myGroup.AddPermission(ExamPermissions.Participants.Default, L("Permission:Participants"));
+        participantPermission.AddChild(ExamPermissions.Participants.Create, L("Permission:Create"));
+        participantPermission.AddChild(ExamPermissions.Participants.Edit, L("Permission:Edit"));
+        participantPermission.AddChild(ExamPermissions.Participants.Delete, L("Permission:Delete"));
+
+        var progressEntryPermission = myGroup.AddPermission(ExamPermissions.ProgressEntries.Default, L("Permission:ProgressEntries"));
+        progressEntryPermission.AddChild(ExamPermissions.ProgressEntries.Create, L("Permission:Create"));
+        progressEntryPermission.AddChild(ExamPermissions.ProgressEntries.Edit, L("Permission:Edit"));
+        progressEntryPermission.AddChild(ExamPermissions.ProgressEntries.Delete, L("Permission:Delete"));
     }
 
     private static LocalizableString L(string name)

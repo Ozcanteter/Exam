@@ -1,3 +1,5 @@
+using Exam.ProgressEntries;
+using Exam.Participants;
 using Exam.Challenges;
 using System;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,6 +53,10 @@ public class ExamEntityFrameworkCoreModule : AbpModule
              * default repositories only for aggregate roots */
             options.AddDefaultRepositories(includeAllEntities: true);
             options.AddRepository<Challenge, Challenges.EfCoreChallengeRepository>();
+
+            options.AddRepository<Participant, Participants.EfCoreParticipantRepository>();
+
+            options.AddRepository<ProgressEntry, ProgressEntries.EfCoreProgressEntryRepository>();
 
         });
 

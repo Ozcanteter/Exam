@@ -1,0 +1,37 @@
+@page
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Exam.Localization
+@using Exam.Web.Pages.Participants
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@using Exam.Participants;
+@using System.Globalization
+@inject IHtmlLocalizer<ExamResource> L
+@model EditModalModel
+@{
+    Layout = null;
+}
+
+<form data-ajaxForm="true" asp-page="/Participants/EditModal" autocomplete="off">
+    <abp-modal id="ParticipantEditModal">
+        <abp-modal-header title="@L["Update"].Value"></abp-modal-header>
+
+        <abp-modal-body>
+
+                    <abp-input asp-for="Id" />
+                    
+                    <abp-input asp-for="Participant.ConcurrencyStamp" hidden="true" suppress-label="true"/>
+                    
+
+            <abp-input asp-for="Participant.IsActive"   />
+
+                                <abp-select asp-for="Participant.ChallengeId" asp-items="Model.ChallengeLookupListRequired" label="@L["Challenge"].Value"/>            <abp-select asp-for="Participant.IdentityUserId" asp-items="Model.IdentityUserLookupList" label="@L["IdentityUser"].Value"/>
+                
+
+
+        </abp-modal-body>
+
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)">
+
+        </abp-modal-footer>
+    </abp-modal>
+</form>

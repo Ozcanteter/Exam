@@ -11,4 +11,8 @@ public class ExamMenus
     public const string TenantDashboard = Prefix + ".TenantDashboard";
     public const string Challenges = Prefix + ".Challenges";
 
+    public const string Participants = Prefix + ".Participants";
+
+    public const string ProgressEntries = Prefix + ".ProgressEntries";
+
 }

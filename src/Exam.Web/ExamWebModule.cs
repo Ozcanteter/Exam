@@ -208,6 +208,8 @@ public class ExamWebModule : AbpModule
             options.Conventions.AuthorizePage("/HostDashboard", ExamPermissions.Dashboard.Host);
             options.Conventions.AuthorizePage("/TenantDashboard", ExamPermissions.Dashboard.Tenant);
             options.Conventions.AuthorizePage("/Challenges/Index", ExamPermissions.Challenges.Default);
+            options.Conventions.AuthorizePage("/Participants/Index", ExamPermissions.Participants.Default);
+            options.Conventions.AuthorizePage("/ProgressEntries/Index", ExamPermissions.ProgressEntries.Default);
         });
     }
 

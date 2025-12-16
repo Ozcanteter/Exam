@@ -1,3 +1,5 @@
+using Exam.ProgressEntries;
+using Exam.Participants;
 using Exam.Challenges;
 using Volo.Abp.EntityFrameworkCore.Modeling;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +32,8 @@ public class ExamDbContext :
     IIdentityProDbContext,
     ISaasDbContext
 {
+    public DbSet<ProgressEntry> ProgressEntries { get; set; } = null!;
+    public DbSet<Participant> Participants { get; set; } = null!;
     public DbSet<Challenge> Challenges { get; set; } = null!;
     /* Add DbSet properties for your Aggregate Roots / Entities here. */
 
@@ -106,6 +110,38 @@ public class ExamDbContext :
                 b.Property(x => x.EndDate).HasColumnName(nameof(Challenge.EndDate));
                 b.Property(x => x.Goal).HasColumnName(nameof(Challenge.Goal));
                 b.Property(x => x.IsActive).HasColumnName(nameof(Challenge.IsActive));
+            });
+
+        }
+        if (builder.IsHostDatabase())
+        {
+
+        }
+        if (builder.IsHostDatabase())
+        {
+
+        }
+        if (builder.IsHostDatabase())
+        {
+            builder.Entity<Participant>(b =>
+            {
+                b.ToTable(ExamConsts.DbTablePrefix + "Participants", ExamConsts.DbSchema);
+                b.ConfigureByConvention();
+                b.Property(x => x.IsActive).HasColumnName(nameof(Participant.IsActive));
+                b.HasOne<Challenge>().WithMany().IsRequired().HasForeignKey(x => x.ChallengeId).OnDelete(DeleteBehavior.NoAction);
+                b.HasOne<IdentityUser>().WithMany().HasForeignKey(x => x.IdentityUserId).OnDelete(DeleteBehavior.NoAction);
+            });
+
+        }
+        if (builder.IsHostDatabase())
+        {
+            builder.Entity<ProgressEntry>(b =>
+            {
+                b.ToTable(ExamConsts.DbTablePrefix + "ProgressEntries", ExamConsts.DbSchema);
+                b.ConfigureByConvention();
+                b.Property(x => x.Value).HasColumnName(nameof(ProgressEntry.Value));
+                b.HasOne<Challenge>().WithMany().IsRequired().HasForeignKey(x => x.ChallengeId).OnDelete(DeleteBehavior.NoAction);
+                b.HasOne<IdentityUser>().WithMany().IsRequired().HasForeignKey(x => x.IdentityUserId).OnDelete(DeleteBehavior.NoAction);
             });
 
         }

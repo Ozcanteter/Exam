@@ -94,6 +94,24 @@ public class ExamMenuContributor : IMenuContributor
                 icon: "fa fa-file-alt",
                 requiredPermissionName: ExamPermissions.Challenges.Default)
         );
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                ExamMenus.Participants,
+                l["Menu:Participants"],
+                url: "/Participants",
+                icon: "fa fa-file-alt",
+                requiredPermissionName: ExamPermissions.Participants.Default)
+        );
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                ExamMenus.ProgressEntries,
+                l["Menu:ProgressEntries"],
+                url: "/ProgressEntries",
+                icon: "fa fa-file-alt",
+                requiredPermissionName: ExamPermissions.ProgressEntries.Default)
+        );
         return Task.CompletedTask;
     }
 }

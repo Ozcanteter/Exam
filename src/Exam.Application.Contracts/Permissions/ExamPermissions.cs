@@ -21,4 +21,20 @@ public static class ExamPermissions
         public const string Create = Default + ".Create";
         public const string Delete = Default + ".Delete";
     }
+
+    public static class Participants
+    {
+        public const string Default = GroupName + ".Participants";
+        public const string Edit = Default + ".Edit";
+        public const string Create = Default + ".Create";
+        public const string Delete = Default + ".Delete";
+    }
+
+    public static class ProgressEntries
+    {
+        public const string Default = GroupName + ".ProgressEntries";
+        public const string Edit = Default + ".Edit";
+        public const string Create = Default + ".Create";
+        public const string Delete = Default + ".Delete";
+    }
 }

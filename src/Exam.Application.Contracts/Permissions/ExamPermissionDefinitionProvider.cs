@@ -31,6 +31,11 @@ public class ExamPermissionDefinitionProvider : PermissionDefinitionProvider
         progressEntryPermission.AddChild(ExamPermissions.ProgressEntries.Create, L("Permission:Create"));
         progressEntryPermission.AddChild(ExamPermissions.ProgressEntries.Edit, L("Permission:Edit"));
         progressEntryPermission.AddChild(ExamPermissions.ProgressEntries.Delete, L("Permission:Delete"));
+
+        var challengeUserTotalPermission = myGroup.AddPermission(ExamPermissions.ChallengeUserTotals.Default, L("Permission:ChallengeUserTotals"));
+        challengeUserTotalPermission.AddChild(ExamPermissions.ChallengeUserTotals.Create, L("Permission:Create"));
+        challengeUserTotalPermission.AddChild(ExamPermissions.ChallengeUserTotals.Edit, L("Permission:Edit"));
+        challengeUserTotalPermission.AddChild(ExamPermissions.ChallengeUserTotals.Delete, L("Permission:Delete"));
     }
 
     private static LocalizableString L(string name)

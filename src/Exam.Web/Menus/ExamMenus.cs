@@ -15,4 +15,6 @@ public class ExamMenus
 
     public const string ProgressEntries = Prefix + ".ProgressEntries";
 
+    public const string ChallengeUserTotals = Prefix + ".ChallengeUserTotals";
+
 }

@@ -1,3 +1,4 @@
+using Exam.ChallengeUserTotals;
 using Exam.ProgressEntries;
 using Volo.Abp.Identity;
 using Exam.Participants;
@@ -29,5 +30,9 @@ public class ExamApplicationAutoMapperProfile : Profile
         CreateMap<ProgressEntry, ProgressEntryDto>();
         CreateMap<ProgressEntry, ProgressEntryExcelDto>();
         CreateMap<ProgressEntryWithNavigationProperties, ProgressEntryWithNavigationPropertiesDto>();
+
+        CreateMap<ChallengeUserTotal, ChallengeUserTotalDto>();
+        CreateMap<ChallengeUserTotal, ChallengeUserTotalExcelDto>();
+        CreateMap<ChallengeUserTotalWithNavigationProperties, ChallengeUserTotalWithNavigationPropertiesDto>();
     }
 }

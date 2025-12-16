@@ -1,3 +1,5 @@
+using Exam.Web.Pages.ChallengeUserTotals;
+using Exam.ChallengeUserTotals;
 using Exam.Web.Pages.ProgressEntries;
 using Exam.ProgressEntries;
 using Exam.Web.Pages.Participants;
@@ -26,5 +28,9 @@ public class ExamWebAutoMapperProfile : Profile
         CreateMap<ProgressEntryDto, ProgressEntryUpdateViewModel>();
         CreateMap<ProgressEntryUpdateViewModel, ProgressEntryUpdateDto>();
         CreateMap<ProgressEntryCreateViewModel, ProgressEntryCreateDto>();
+
+        CreateMap<ChallengeUserTotalDto, ChallengeUserTotalUpdateViewModel>();
+        CreateMap<ChallengeUserTotalUpdateViewModel, ChallengeUserTotalUpdateDto>();
+        CreateMap<ChallengeUserTotalCreateViewModel, ChallengeUserTotalCreateDto>();
     }
 }

@@ -112,6 +112,15 @@ public class ExamMenuContributor : IMenuContributor
                 icon: "fa fa-file-alt",
                 requiredPermissionName: ExamPermissions.ProgressEntries.Default)
         );
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                ExamMenus.ChallengeUserTotals,
+                l["Menu:ChallengeUserTotals"],
+                url: "/ChallengeUserTotals",
+                icon: "fa fa-file-alt",
+                requiredPermissionName: ExamPermissions.ChallengeUserTotals.Default)
+        );
         return Task.CompletedTask;
     }
 }

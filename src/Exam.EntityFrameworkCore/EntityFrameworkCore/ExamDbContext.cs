@@ -1,3 +1,4 @@
+using Exam.ChallengeUserTotals;
 using Exam.ProgressEntries;
 using Exam.Participants;
 using Exam.Challenges;
@@ -32,6 +33,7 @@ public class ExamDbContext :
     IIdentityProDbContext,
     ISaasDbContext
 {
+    public DbSet<ChallengeUserTotal> ChallengeUserTotals { get; set; } = null!;
     public DbSet<ProgressEntry> ProgressEntries { get; set; } = null!;
     public DbSet<Participant> Participants { get; set; } = null!;
     public DbSet<Challenge> Challenges { get; set; } = null!;
@@ -140,6 +142,18 @@ public class ExamDbContext :
                 b.ToTable(ExamConsts.DbTablePrefix + "ProgressEntries", ExamConsts.DbSchema);
                 b.ConfigureByConvention();
                 b.Property(x => x.Value).HasColumnName(nameof(ProgressEntry.Value));
+                b.HasOne<Challenge>().WithMany().IsRequired().HasForeignKey(x => x.ChallengeId).OnDelete(DeleteBehavior.NoAction);
+                b.HasOne<IdentityUser>().WithMany().IsRequired().HasForeignKey(x => x.IdentityUserId).OnDelete(DeleteBehavior.NoAction);
+            });
+
+        }
+        if (builder.IsHostDatabase())
+        {
+            builder.Entity<ChallengeUserTotal>(b =>
+            {
+                b.ToTable(ExamConsts.DbTablePrefix + "ChallengeUserTotals", ExamConsts.DbSchema);
+                b.ConfigureByConvention();
+                b.Property(x => x.TotalValue).HasColumnName(nameof(ChallengeUserTotal.TotalValue));
                 b.HasOne<Challenge>().WithMany().IsRequired().HasForeignKey(x => x.ChallengeId).OnDelete(DeleteBehavior.NoAction);
                 b.HasOne<IdentityUser>().WithMany().IsRequired().HasForeignKey(x => x.IdentityUserId).OnDelete(DeleteBehavior.NoAction);
             });

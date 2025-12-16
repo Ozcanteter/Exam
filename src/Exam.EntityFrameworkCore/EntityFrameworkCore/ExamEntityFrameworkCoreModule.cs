@@ -1,3 +1,4 @@
+using Exam.ChallengeUserTotals;
 using Exam.ProgressEntries;
 using Exam.Participants;
 using Exam.Challenges;
@@ -57,6 +58,8 @@ public class ExamEntityFrameworkCoreModule : AbpModule
             options.AddRepository<Participant, Participants.EfCoreParticipantRepository>();
 
             options.AddRepository<ProgressEntry, ProgressEntries.EfCoreProgressEntryRepository>();
+
+            options.AddRepository<ChallengeUserTotal, ChallengeUserTotals.EfCoreChallengeUserTotalRepository>();
 
         });
 

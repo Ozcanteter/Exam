@@ -1,0 +1,36 @@
+@page
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Exam.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@using Exam.Web.Pages.ChallengeUserTotals
+@using Exam.ChallengeUserTotals;
+@using System.Globalization
+@inject IHtmlLocalizer<ExamResource> L
+@model CreateModalModel
+@{
+    Layout = null;
+}
+
+
+<form data-ajaxForm="true" asp-page="/ChallengeUserTotals/CreateModal" autocomplete="off">
+    <abp-modal id="ChallengeUserTotalCreateModal">
+        <abp-modal-header title="@L["NewChallengeUserTotal"].Value"></abp-modal-header>
+
+        <abp-modal-body>
+
+                    
+                    
+
+            <abp-input asp-for="ChallengeUserTotal.TotalValue"   />
+
+                                <abp-select asp-for="ChallengeUserTotal.ChallengeId" asp-items="Model.ChallengeLookupListRequired" label="@L["Challenge"].Value"/>            <abp-select asp-for="ChallengeUserTotal.IdentityUserId" asp-items="Model.IdentityUserLookupListRequired" label="@L["IdentityUser"].Value"/>
+                
+
+
+        </abp-modal-body>
+
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)">
+
+        </abp-modal-footer>
+    </abp-modal>
+</form>

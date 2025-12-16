@@ -76,6 +76,13 @@
     "Value": "Value",
     "MinValue": "Min Value",
     "MaxValue": "Max Value",
-    "Menu:ProgressEntries": "Progress Entries"
+    "Menu:ProgressEntries": "Progress Entries",
+    "Permission:ChallengeUserTotals": "Challenge User Totals",
+    "ChallengeUserTotals": "Challenge User Totals",
+    "NewChallengeUserTotal": "New Challenge User Total",
+    "TotalValue": "Total Value",
+    "MinTotalValue": "Min Total Value",
+    "MaxTotalValue": "Max Total Value",
+    "Menu:ChallengeUserTotals": "Challenge User Totals"
   }
 }

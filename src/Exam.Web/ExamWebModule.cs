@@ -207,6 +207,7 @@ public class ExamWebModule : AbpModule
         {
             options.Conventions.AuthorizePage("/HostDashboard", ExamPermissions.Dashboard.Host);
             options.Conventions.AuthorizePage("/TenantDashboard", ExamPermissions.Dashboard.Tenant);
+            options.Conventions.AuthorizePage("/Challenges/Index", ExamPermissions.Challenges.Default);
         });
     }
 
@@ -338,7 +339,7 @@ public class ExamWebModule : AbpModule
             )
             .AddTwitter(TwitterDefaults.AuthenticationScheme, options =>
             {
-                options.ClaimActions.MapJsonKey(AbpClaimTypes.Picture,"profile_image_url_https");
+                options.ClaimActions.MapJsonKey(AbpClaimTypes.Picture, "profile_image_url_https");
                 options.RetrieveUserDetails = true;
             })
             .WithDynamicOptions<TwitterOptions, TwitterHandler>(
@@ -350,7 +351,6 @@ public class ExamWebModule : AbpModule
                 }
             );
     }
-
 
     public override void OnApplicationInitialization(ApplicationInitializationContext context)
     {

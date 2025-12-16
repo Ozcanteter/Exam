@@ -1,0 +1,44 @@
+@page
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Exam.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@using Exam.Web.Pages.Challenges
+@using Exam.Challenges;
+@using System.Globalization
+@inject IHtmlLocalizer<ExamResource> L
+@model CreateModalModel
+@{
+    Layout = null;
+}
+
+
+<form data-ajaxForm="true" asp-page="/Challenges/CreateModal" autocomplete="off">
+    <abp-modal id="ChallengeCreateModal">
+        <abp-modal-header title="@L["NewChallenge"].Value"></abp-modal-header>
+
+        <abp-modal-body>
+
+                    
+                    
+
+            <abp-input asp-for="Challenge.Name"   />
+
+            <abp-date-picker auto-update-input="true" today-button-classes="btn-primary" asp-for="Challenge.StartDate" data-date="@DateTime.Now.ToString("yyyy-MM-dd")" />
+            <abp-date-picker auto-update-input="true" today-button-classes="btn-primary" asp-for="Challenge.EndDate" data-date="@DateTime.Now.ToString("yyyy-MM-dd")" />
+
+            <abp-input asp-for="Challenge.Goal"   />
+
+
+            <abp-input asp-for="Challenge.IsActive"   />
+
+                    
+                
+
+
+        </abp-modal-body>
+
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)">
+
+        </abp-modal-footer>
+    </abp-modal>
+</form>

@@ -1,3 +1,4 @@
+using Exam.Challenges;
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Uow;
@@ -46,15 +47,17 @@ public class ExamEntityFrameworkCoreModule : AbpModule
     {
         context.Services.AddAbpDbContext<ExamDbContext>(options =>
         {
-                /* Remove "includeAllEntities: true" to create
-                 * default repositories only for aggregate roots */
+            /* Remove "includeAllEntities: true" to create
+             * default repositories only for aggregate roots */
             options.AddDefaultRepositories(includeAllEntities: true);
+            options.AddRepository<Challenge, Challenges.EfCoreChallengeRepository>();
+
         });
 
         Configure<AbpDbContextOptions>(options =>
         {
-                /* The main point to change your DBMS.
-                 * See also ExamDbContextFactory for EF Core tooling. */
+            /* The main point to change your DBMS.
+             * See also ExamDbContextFactory for EF Core tooling. */
             options.UseSqlServer();
         });
 

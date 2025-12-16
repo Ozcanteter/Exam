@@ -1,3 +1,5 @@
+using Exam.Challenges;
+using Volo.Abp.EntityFrameworkCore.Modeling;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
@@ -28,6 +30,7 @@ public class ExamDbContext :
     IIdentityProDbContext,
     ISaasDbContext
 {
+    public DbSet<Challenge> Challenges { get; set; } = null!;
     /* Add DbSet properties for your Aggregate Roots / Entities here. */
 
     #region Entities from the modules
@@ -92,5 +95,19 @@ public class ExamDbContext :
         //    b.ConfigureByConvention(); //auto configure for the base class props
         //    //...
         //});
+        if (builder.IsHostDatabase())
+        {
+            builder.Entity<Challenge>(b =>
+            {
+                b.ToTable(ExamConsts.DbTablePrefix + "Challenges", ExamConsts.DbSchema);
+                b.ConfigureByConvention();
+                b.Property(x => x.Name).HasColumnName(nameof(Challenge.Name)).IsRequired().HasMaxLength(ChallengeConsts.NameMaxLength);
+                b.Property(x => x.StartDate).HasColumnName(nameof(Challenge.StartDate));
+                b.Property(x => x.EndDate).HasColumnName(nameof(Challenge.EndDate));
+                b.Property(x => x.Goal).HasColumnName(nameof(Challenge.Goal));
+                b.Property(x => x.IsActive).HasColumnName(nameof(Challenge.IsActive));
+            });
+
+        }
     }
 }

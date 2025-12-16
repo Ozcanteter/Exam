@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
 using Exam.Localization;
 using Exam.Permissions;
@@ -84,6 +86,14 @@ public class ExamMenuContributor : IMenuContributor
         //Administration->Settings
         administration.SetSubItemOrder(SettingManagementMenuNames.GroupName, 6);
 
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                ExamMenus.Challenges,
+                l["Menu:Challenges"],
+                url: "/Challenges",
+                icon: "fa fa-file-alt",
+                requiredPermissionName: ExamPermissions.Challenges.Default)
+        );
         return Task.CompletedTask;
     }
 }

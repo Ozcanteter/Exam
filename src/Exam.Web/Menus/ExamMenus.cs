@@ -1,4 +1,4 @@
-﻿namespace Exam.Web.Menus;
+namespace Exam.Web.Menus;
 
 public class ExamMenus
 {
@@ -9,4 +9,6 @@ public class ExamMenus
     public const string HostDashboard = Prefix + ".HostDashboard";
 
     public const string TenantDashboard = Prefix + ".TenantDashboard";
+    public const string Challenges = Prefix + ".Challenges";
+
 }

@@ -114,7 +114,7 @@ namespace Exam.ChallengePublic
             _ = await _challengeRepository.FindAsync(challengeId)
                 ?? throw new UserFriendlyException(L["ChallengeNotFound"]);
 
-            await _distributedEventBus.PublishAsync(new ProgressEntryCreateEto(), useOutbox: true);
+            await _distributedEventBus.PublishAsync(new ProgressEntryCreateEto() { ChallengeId = challengeId, UserId = input.UserId, Value = input.Value }, useOutbox: true);
         }
     }
 }

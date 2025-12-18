@@ -141,7 +141,10 @@ public class ProgressEntryConsumerWorker(IConfiguration configuration, IChalleng
 
     private async Task ProcessAsync(IServiceProvider serviceProvider, ProgressEntryCreateEto eto)
     {
-        var challenge = await _challengeRepository.GetAsync(eto.ChallengeId);
+        var challenge = await _challengeRepository.FindAsync(eto.ChallengeId);
+        if (challenge == null)
+            return;
+        
         var participant = await _participantRepository.FindAsync(c => c.ChallengeId == eto.ChallengeId && c.IdentityUserId == eto.UserId);
         participant ??= await _participantManager.CreateAsync(challenge.Id, eto.UserId, isActive: true);
 

@@ -3,6 +3,8 @@ using Exam.ChallengeUserTotals;
 using Exam.Etos;
 using Exam.Participants;
 using Exam.ProgressEntries;
+using Microsoft.Extensions.Caching.Distributed;
+using Org.BouncyCastle.Asn1.Cmp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,10 +85,12 @@ namespace Exam.ChallengePublic
 
             if (leaderboardCache == null || leaderboardCache.Scores.Count == 0)
             {
-                return [];
+                await SyncLeaderboardAsync(challengeId);
             }
 
-            var topUsers = leaderboardCache.Scores
+            leaderboardCache = await _leaderboardCache.GetAsync(challengeId);
+
+            var topUsers = leaderboardCache!.Scores
                 .OrderByDescending(x => x.Value)
                 .Take(10)
                 .ToList();
@@ -108,6 +112,32 @@ namespace Exam.ChallengePublic
             }
 
             return leaderboard;
+        }
+
+        protected async Task SyncLeaderboardAsync(Guid challengeId)
+        {
+            var userTotals = await _challengeUserTotalRepository.GetListWithNavigationPropertiesAsync(challengeId: challengeId, maxResultCount: 10);
+
+            var leaderboardKey = $"leaderboard:challenge:{challengeId}";
+
+            foreach (var userTotal in userTotals)
+            {
+                // await _redisDatabase.SortedSetAddAsync(leaderboardKey, userTotal.IdentityUserId.ToString(), userTotal.TotalValue);
+                var leaderboard = await _leaderboardCache.GetOrAddAsync(userTotal.Challenge.Id, () => Task.FromResult(new ChallengeLeaderboardCacheItem()), () => new DistributedCacheEntryOptions
+                { SlidingExpiration = TimeSpan.FromHours(1) });
+
+                if (leaderboard!.Scores.ContainsKey(userTotal.IdentityUser.Id))
+                {
+                    leaderboard.Scores[userTotal.IdentityUser.Id] += userTotal.ChallengeUserTotal.TotalValue;
+                }
+                else
+                {
+                    leaderboard.Scores[userTotal.IdentityUser.Id] = userTotal.ChallengeUserTotal.TotalValue;
+                }
+
+                await _leaderboardCache.SetAsync(userTotal.Challenge.Id, leaderboard);
+            }
+
         }
 
         public virtual async Task ProgressEntryCreateAsync(ChallengePublicProgressEntryCreateDto input, Guid challengeId)

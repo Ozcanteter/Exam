@@ -1,0 +1,62 @@
+@startuml Employee_Wellness_DatabaseSchema
+
+!define primary_key PK
+!define foreign_key FK
+
+title Employee Wellness Program - Database Schema
+
+entity Challenge {
+    *Id : GUID [primary_key]
+    Name : nvarchar(max)
+    StartDate : datetime
+    EndDate : datetime
+    Goal : float
+    IsActive : bit
+    CreationTime : datetime
+    CreatorId : GUID [FK]
+    LastModificationTime : datetime
+    LastModifierId : GUID [FK]
+}
+
+entity ProgressEntry {
+    *Id : GUID [primary_key]
+    ChallengeId : GUID [foreign_key]
+    IdentityUserId : GUID [foreign_key]
+    Value : float
+    CreationTime : datetime
+    CreatorId : GUID [FK]
+}
+
+entity ChallengeUserTotal {
+    *Id : GUID [primary_key]
+    ChallengeId : GUID [foreign_key]
+    IdentityUserId : GUID [foreign_key]
+    TotalValue : float
+    LastModificationTime : datetime
+    LastModifierId : GUID [FK]
+}
+
+entity Participant {
+    *Id : GUID [primary_key]
+    ChallengeId : GUID [foreign_key]
+    IdentityUserId : GUID [foreign_key]
+    IsActive : bit
+    CreationTime : datetime
+    CreatorId : GUID [FK]
+}
+
+' Relationships
+Challenge ||--o{ ProgressEntry : "has"
+note on link : "1 : N\nOne challenge\nmany progress entries"
+
+Challenge ||--o{ ChallengeUserTotal : "aggregates"
+note on link : "1 : N\nOne challenge\nmany user totals"
+
+Challenge ||--o{ Participant : "enrolls"
+note on link : "1 : N\nOne challenge\nmany participants"
+
+' Optional: Show that ProgressEntry and ChallengeUserTotal are related
+ProgressEntry }o--|| ChallengeUserTotal : "aggregates_into"
+note on link : "N : 1\nMany progress entries\naggregate to one total"
+
+@enduml

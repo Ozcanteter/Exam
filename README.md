@@ -1,59 +1,132 @@
-# Exam
+# Employee Wellness Program - Architecture
 
-## About this solution
+## Overview
+.NET 8 Web API built on ABP Framework for managing company wellness challenges, progress tracking, and leaderboards. Designed for high concurrency and scalability.
 
-This is a layered startup solution based on [Domain Driven Design (DDD)](https://docs.abp.io/en/abp/latest/Domain-Driven-Design) practises. All the fundamental ABP modules are already installed. Check the [Application Startup Template](https://docs.abp.io/en/commercial/latest/startup-templates/application/index) documentation for more info.
+## Technology Stack
 
-### Pre-requirements
+| Component | Technology | Version |
+|-----------|-----------|---------|
+| Framework | ABP Framework | 8.0.1 |
+| Runtime | .NET | 8.0 |
+| ORM | Entity Framework Core | 8.0 |
+| Database | SQL Server | 2019+ |
+| Cache | Redis | 7.0+ |
+| Message Queue | RabbitMQ | 3.10+ |
+| Logging | Serilog (ABP) | 2.0+ |
+---
 
-* [.NET 8.0+ SDK](https://dotnet.microsoft.com/download/dotnet)
-* [Node v18 or 20](https://nodejs.org/en)
+## API Endpoints
+- `POST /api/challenges/create` - Create challenge
+- `POST /api/challenges/{id}/progress` - Submit progress (async)
+- `GET /api/challenges/{id}/leaderboard` - Get top 10 (cached)
+- `GET /api/users/{id}/active` - Get user's active challenges
 
-### Configurations
+---
 
-The solution comes with a default configuration that works out of the box. However, you may consider to change the following configuration before running your solution:
+## Architecture
 
-* Check the `ConnectionStrings` in `appsettings.json` files under the `Exam.Web` and `Exam.DbMigrator` projects and change it if you need.
-
-### Before running the application
-
-* Run `abp install-libs` command on your solution folder to install client-side package dependencies. This step is automatically done when you create a new solution with ABP CLI. However, you should run it yourself if you have first cloned this solution from your source control, or added a new client-side package dependency to your solution.
-* Run `Exam.DbMigrator` to create the initial database. This should be done in the first run. It is also needed if a new database migration is added to the solution later.
-
-#### Generating a Signing Certificate
-
-In the production environment, you need to use a production signing certificate. ABP Framework sets up signing and encryption certificates in your application and expects an `authserver.pfx` file in your application.
-
-To generate a signing certificate, you can use the following command:
-
-```bash
-dotnet dev-certs https -v -ep authserver.pfx -p 00000000-0000-0000-0000-000000000000
+### Layered Design
+```
+Controllers (ChallengePublicController)
+    ↓
+App Services (ChallengePublicAppService)
+    ↓
+Domain Layer (Managers, Repositories, Entities)
+    ↓
+Infrastructure (EF Core, Repositories)
 ```
 
-> `93bccbf5-675e-461f-8d1f-643f8be24b73` is the password of the certificate, you can change it to any password you want.
+### Domain Entities
+- **Challenge** - Aggregate root (Name, StartDate, EndDate, Goal, IsActive)
+- **ProgressEntry** - High-volume writes (ChallengeId, UserId, Value)
+- **ChallengeUserTotal** - Denormalized aggregates for fast reads
+- **Participant** - User-challenge enrollment (tracks active status)
 
-It is recommended to use **two** RSA certificates, distinct from the certificate(s) used for HTTPS: one for encryption, one for signing.
+---
 
-For more information, please refer to: https://documentation.openiddict.com/configuration/encryption-and-signing-credentials.html#registering-a-certificate-recommended-for-production-ready-scenarios
+## High-Volume Processing
 
-> Also, see the [Configuring OpenIddict](https://docs.abp.io/en/abp/latest/Deployment/Configuring-OpenIddict#production-environment) documentation for more information.
+### Async Progress Flow
+Progress submissions don't block on DB writes:
 
-### Solution structure
+1. Client submits progress → API
+2. API publishes event to RabbitMQ via outbox pattern (transactional)
+3. API returns 200 immediately (~50ms)
+4. Background worker consumes from queue asynchronously
+5. Worker updates DB + Redis cache in batch
 
-This is a layered monolith application that consists of the following applications:
+**ProgressEntryConsumerWorker** flow:
+- Receives `ProgressEntryCreateEto` from queue
+- Auto-enrolls user in challenge (Participant)
+- Creates ProgressEntry record
+- Updates ChallengeUserTotal (increment or create)
+- Updates Redis leaderboard cache
 
-* `Exam.DbMigrator`: A console application which applies the migrations and also seeds the initial data. It is useful on development as well as on production environment.
-* `Exam.Web`: ASP.NET Core MVC / Razor Pages application that is the essential web application of the solution.
+**Benefits:** No DB bottleneck, fast API response 
 
-## Deploying the application
+---
 
-Deploying an ABP application is not different than deploying any .NET or ASP.NET Core application. However, there are some topics that you should care about when you are deploying your applications. You can check ABP's [Deployment documentation](https://docs.abp.io/en/abp/latest/Deployment/Index) and ABP Commercial's [Deployment documentation](https://docs.abp.io/en/commercial/latest/startup-templates/application/deployment?UI=MVC&DB=EF&Tiered=No) before deploying your application.
+## Performance & Caching
 
-### Additional resources
+### Redis Cache (Leaderboard)
+- Stores dictionary: `Dictionary<UserId, TotalScore>` per challenge
+- Background worker updates after each batch
 
-You can see the following resources to learn more about your solution and the ABP Framework:
+---
 
-* [Web Application Development Tutorial](https://docs.abp.io/en/commercial/latest/tutorials/book-store/part-1)
-* [Application Startup Template](https://docs.abp.io/en/commercial/latest/startup-templates/application/index)
-* [LeptonX Theme Module](https://docs.abp.io/en/commercial/latest/themes/lepton-x/index)
-* [LeptonX MVC UI](https://docs.abp.io/en/commercial/latest/themes/lepton-x/mvc)
+## Concurrency & Consistency
+
+### Optimistic Concurrency Control
+- All updates include `ConcurrencyStamp` with ABP
+- EF Core detects conflicts, throws exception
+- Prevents race conditions on Challenge updates
+
+
+## API Examples
+
+**Create Challenge:**
+```json
+POST /api/challenges/create
+{
+  "name": "Step Challenge 2024",
+  "startDate": "2024-01-01T00:00:00Z",
+  "endDate": "2024-03-31T23:59:59Z",
+  "goal": 10000.0
+}
+```
+
+**Submit Progress (async):**
+```json
+POST /api/challenges/{id}/progress
+{
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "value": 8500.0
+}
+// Returns 200 immediately, processed in background
+```
+
+**Get Leaderboard:**
+```json
+GET /api/challenges/{id}/leaderboard
+// Response (from Redis cache):
+[
+  { "placeIndex": 0, "userName": "john.doe", "totalProgress": 85000.0 },
+  { "placeIndex": 1, "userName": "jane.smith", "totalProgress": 78000.0 }
+]
+```
+
+---
+
+## Key Components
+
+**ChallengePublicAppService** - Public API logic
+- CreateAsync, GetActiveChallengesAsync, GetLeaderboardAsync, ProgressEntryCreateAsync
+
+**ProgressEntryConsumerWorker** - Background service
+- RabbitMQ consumer (IHostedService)
+- Processes events, updates DB + cache
+- Error handling with BasicNack + requeue
+
+**Database Tables**
+- AppChallenges, AppProgressEntries, AppChallengeUserTotals, AppParticipants

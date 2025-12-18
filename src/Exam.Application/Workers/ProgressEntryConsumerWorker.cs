@@ -166,8 +166,7 @@ public class ProgressEntryConsumerWorker(IConfiguration configuration, IChalleng
         // Redis leaderboard key
         var leaderboardKey = $"leaderboard:challenge:{challenge.Id}";
 
-        var leaderboard = await _leaderboardCache.GetOrAddAsync(eto.ChallengeId, () => Task.FromResult(new ChallengeLeaderboardCacheItem()), () => new DistributedCacheEntryOptions
-        { SlidingExpiration = TimeSpan.FromHours(1) });
+        var leaderboard = await _leaderboardCache.GetOrAddAsync(eto.ChallengeId, () => Task.FromResult(new ChallengeLeaderboardCacheItem()), () => new DistributedCacheEntryOptions());
 
         if (leaderboard!.Scores.ContainsKey(eto.UserId))
         {

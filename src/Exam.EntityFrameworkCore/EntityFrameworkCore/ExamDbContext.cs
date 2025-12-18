@@ -1,8 +1,7 @@
-using Exam.ChallengeUserTotals;
-using Exam.ProgressEntries;
-using Exam.Participants;
 using Exam.Challenges;
-using Volo.Abp.EntityFrameworkCore.Modeling;
+using Exam.ChallengeUserTotals;
+using Exam.Participants;
+using Exam.ProgressEntries;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
@@ -10,18 +9,20 @@ using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.EntityFrameworkCore;
+using Volo.Abp.EntityFrameworkCore.DistributedEvents;
+using Volo.Abp.EntityFrameworkCore.Modeling;
 using Volo.Abp.FeatureManagement.EntityFrameworkCore;
+using Volo.Abp.Gdpr;
 using Volo.Abp.Identity;
 using Volo.Abp.Identity.EntityFrameworkCore;
 using Volo.Abp.LanguageManagement.EntityFrameworkCore;
+using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TextTemplateManagement.EntityFrameworkCore;
-using Volo.Saas.EntityFrameworkCore;
 using Volo.Saas.Editions;
+using Volo.Saas.EntityFrameworkCore;
 using Volo.Saas.Tenants;
-using Volo.Abp.Gdpr;
-using Volo.Abp.OpenIddict.EntityFrameworkCore;
 
 namespace Exam.EntityFrameworkCore;
 
@@ -31,7 +32,7 @@ namespace Exam.EntityFrameworkCore;
 public class ExamDbContext :
     AbpDbContext<ExamDbContext>,
     IIdentityProDbContext,
-    ISaasDbContext
+    ISaasDbContext, IHasEventOutbox, IHasEventInbox
 {
     public DbSet<ChallengeUserTotal> ChallengeUserTotals { get; set; } = null!;
     public DbSet<ProgressEntry> ProgressEntries { get; set; } = null!;
@@ -68,6 +69,9 @@ public class ExamDbContext :
 
     #endregion
 
+    public DbSet<OutgoingEventRecord> OutgoingEvents { get; set; } // Outbox
+    public DbSet<IncomingEventRecord> IncomingEvents { get; set; } // Inbox
+
     public ExamDbContext(DbContextOptions<ExamDbContext> options)
         : base(options)
     {
@@ -93,6 +97,8 @@ public class ExamDbContext :
         builder.ConfigureBlobStoring();
         builder.ConfigureGdpr();
 
+        builder.ConfigureEventOutbox();
+        builder.ConfigureEventInbox();
         /* Configure your own tables/entities inside here */
 
         //builder.Entity<YourEntity>(b =>
@@ -113,14 +119,6 @@ public class ExamDbContext :
                 b.Property(x => x.Goal).HasColumnName(nameof(Challenge.Goal));
                 b.Property(x => x.IsActive).HasColumnName(nameof(Challenge.IsActive));
             });
-
-        }
-        if (builder.IsHostDatabase())
-        {
-
-        }
-        if (builder.IsHostDatabase())
-        {
 
         }
         if (builder.IsHostDatabase())

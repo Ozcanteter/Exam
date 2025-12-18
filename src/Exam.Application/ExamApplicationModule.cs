@@ -1,6 +1,10 @@
-﻿using Volo.Abp.Account;
+﻿using Exam.Workers;
+using System.Threading.Tasks;
+using Volo.Abp;
+using Volo.Abp.Account;
 using Volo.Abp.AuditLogging;
 using Volo.Abp.AutoMapper;
+using Volo.Abp.BackgroundWorkers;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Gdpr;
 using Volo.Abp.Identity;
@@ -28,6 +32,7 @@ namespace Exam;
     typeof(AbpAccountAdminApplicationModule),
     typeof(LanguageManagementApplicationModule),
     typeof(AbpGdprApplicationModule),
+    typeof(AbpBackgroundWorkersModule),
     typeof(TextTemplateManagementApplicationModule)
     )]
 public class ExamApplicationModule : AbpModule
@@ -38,5 +43,11 @@ public class ExamApplicationModule : AbpModule
         {
             options.AddMaps<ExamApplicationModule>();
         });
+    }
+
+    public override async Task OnApplicationInitializationAsync(
+        ApplicationInitializationContext context)
+    {
+        await context.AddBackgroundWorkerAsync<ProgressEntryConsumerWorker>();
     }
 }

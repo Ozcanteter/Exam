@@ -1,66 +1,67 @@
-using System.IO;
+using Exam.EntityFrameworkCore;
+using Exam.Localization;
+using Exam.MultiTenancy;
+using Exam.Permissions;
+using Exam.Web.HealthChecks;
+using Exam.Web.Menus;
+using Medallion.Threading;
+using Medallion.Threading.Redis;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Exam.EntityFrameworkCore;
-using Exam.Localization;
-using Exam.MultiTenancy;
-using Exam.Permissions;
-using Exam.Web.Menus;
 using Microsoft.OpenApi.Models;
+using OpenIddict.Server.AspNetCore;
+using OpenIddict.Validation.AspNetCore;
+using StackExchange.Redis;
+using System;
+using System.IO;
 using Volo.Abp;
 using Volo.Abp.Account.Admin.Web;
 using Volo.Abp.Account.Public.Web;
 using Volo.Abp.Account.Public.Web.ExternalProviders;
+using Volo.Abp.Account.Web;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.Mvc.Localization;
-using Volo.Abp.AspNetCore.Mvc.UI;
-using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.Commercial;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
-using Volo.Abp.AuditLogging.Web;
-using Volo.Abp.Autofac;
-using Volo.Abp.AutoMapper;
-using Volo.Abp.Identity.Web;
-using Volo.Abp.LanguageManagement;
-using Volo.Abp.Modularity;
-using Volo.Abp.PermissionManagement;
-using Volo.Abp.PermissionManagement.Web;
-using Volo.Abp.TextTemplateManagement.Web;
-using Volo.Abp.UI.Navigation.Urls;
-using Volo.Abp.UI;
-using Volo.Abp.UI.Navigation;
-using Volo.Abp.VirtualFileSystem;
-using Volo.Saas.Host;
-using System;
-using System.Security.Cryptography.X509Certificates;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
-using Microsoft.AspNetCore.Authentication.Twitter;
-using Microsoft.AspNetCore.Extensions.DependencyInjection;
-using Exam.Web.HealthChecks;
-using OpenIddict.Server.AspNetCore;
-using OpenIddict.Validation.AspNetCore;
-using Volo.Abp.Account.Pro.Public.Web.Shared;
-using Volo.Abp.Account.Web;
 using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonX;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonX.Bundling;
+using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared.Toolbars;
 using Volo.Abp.AspNetCore.Serilog;
-using Volo.Abp.Identity;
-using Volo.Abp.Swashbuckle;
+using Volo.Abp.AuditLogging.Web;
+using Volo.Abp.Autofac;
+using Volo.Abp.AutoMapper;
+using Volo.Abp.BackgroundJobs.RabbitMQ;
+using Volo.Abp.Caching;
+using Volo.Abp.Caching.StackExchangeRedis;
+using Volo.Abp.DistributedLocking;
+using Volo.Abp.EventBus.RabbitMq;
 using Volo.Abp.Gdpr.Web;
 using Volo.Abp.Gdpr.Web.Extensions;
+using Volo.Abp.Identity;
+using Volo.Abp.Identity.Web;
+using Volo.Abp.LanguageManagement;
 using Volo.Abp.LeptonX.Shared;
+using Volo.Abp.Modularity;
 using Volo.Abp.OpenIddict;
 using Volo.Abp.OpenIddict.Pro.Web;
+using Volo.Abp.PermissionManagement;
 using Volo.Abp.Security.Claims;
-using Volo.Abp.SettingManagement.Web;
+using Volo.Abp.Swashbuckle;
+using Volo.Abp.TextTemplateManagement.Web;
+using Volo.Abp.UI.Navigation;
+using Volo.Abp.UI.Navigation.Urls;
+using Volo.Abp.VirtualFileSystem;
+using Volo.Saas.Host;
 
 namespace Exam.Web;
 
@@ -80,6 +81,10 @@ namespace Exam.Web;
     typeof(TextTemplateManagementWebModule),
     typeof(AbpGdprWebModule),
     typeof(AbpSwashbuckleModule),
+    typeof(AbpCachingStackExchangeRedisModule),
+    typeof(AbpDistributedLockingModule),
+    typeof(AbpEventBusRabbitMqModule),
+    typeof(AbpBackgroundJobsRabbitMqModule),
     typeof(AbpAspNetCoreSerilogModule)
 )]
 public class ExamWebModule : AbpModule
@@ -146,6 +151,9 @@ public class ExamWebModule : AbpModule
         ConfigureBundles();
         ConfigureUrls(configuration);
         ConfigurePages(configuration);
+        ConfigureCache(configuration);
+        ConfigureDataProtection(context, configuration, hostingEnvironment);
+        ConfigureDistributedLocking(context, configuration);
         ConfigureAuthentication(context);
         ConfigureImpersonation(context, configuration);
         ConfigureAutoMapper();
@@ -157,6 +165,9 @@ public class ExamWebModule : AbpModule
         ConfigureHealthChecks(context);
         ConfigureCookieConsent(context);
         ConfigureTheme();
+        ConfigureCache(configuration);
+        ConfigureDataProtection(context, configuration, hostingEnvironment);
+        ConfigureDistributedLocking(context, configuration);
 
         Configure<PermissionManagementOptions>(options =>
         {
@@ -398,4 +409,36 @@ public class ExamWebModule : AbpModule
         app.UseAbpSerilogEnrichers();
         app.UseConfiguredEndpoints();
     }
+
+    private void ConfigureCache(IConfiguration configuration)
+    {
+        Configure<AbpDistributedCacheOptions>(options =>
+        {
+            options.KeyPrefix = "Exam:";
+        });
+    }
+    private void ConfigureDataProtection(
+       ServiceConfigurationContext context,
+       IConfiguration configuration,
+       IWebHostEnvironment hostingEnvironment)
+    {
+        var dataProtectionBuilder = context.Services.AddDataProtection().SetApplicationName("Exam");
+        if (!hostingEnvironment.IsDevelopment())
+        {
+            Console.WriteLine("Redis::::::::::::::::::::::: " + configuration["Redis:Configuration"]!);
+            var redis = ConnectionMultiplexer.Connect(configuration["Redis:Configuration"]!);
+            dataProtectionBuilder.PersistKeysToStackExchangeRedis(redis, "Exam-Protection-Keys");
+        }
+    }
+    private void ConfigureDistributedLocking(
+        ServiceConfigurationContext context,
+        IConfiguration configuration)
+    {
+        context.Services.AddSingleton<IDistributedLockProvider>(sp =>
+        {
+            var connection = ConnectionMultiplexer.Connect(configuration["Redis:Configuration"]!);
+            return new RedisDistributedSynchronizationProvider(connection.GetDatabase());
+        });
+    }
+
 }

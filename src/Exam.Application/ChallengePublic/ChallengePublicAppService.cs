@@ -14,6 +14,7 @@ using Volo.Abp.Identity;
 
 namespace Exam.ChallengePublic
 {
+    [RemoteService(false)]
     public class ChallengePublicAppService(IChallengeRepository challengeRepository, ChallengeManager challengeManager,
         IIdentityUserRepository identityUserRepository, IParticipantRepository participantRepository, ParticipantManager participantManager,
         IChallengeUserTotalRepository challengeUserTotalRepository, ChallengeUserTotalManager challengeUserTotalManager,
